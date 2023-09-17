@@ -1,15 +1,61 @@
 name: Playwright Tests
 on:
   workflow_dispatch:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+    inputs:
+      environment:
+        type: choice
+        description: 'Environment to run in'
+        required: true
+        default: 'staging'
+        options:
+        - 'develop'
+        - 'staging'
+        - 'production'
+      browser:
+        type: choice
+        description: 'Browser'
+        required: true
+        default: 'chromium'
+        options:
+          - 'Chromium'
+          - 'Firefox'
+          - 'Webkit'
+          - 'All browsers'
+      options:
+        type: string
+        description: 'Test run options (e.g.: --workers=1)'
+        required: false
+      skip-message:
+        type: boolean
+        description: 'Skip Slack message?'
+        required: true
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
+    - name: Process inputs and add them to the GITHUB_OUTPUT
+      id: process_inputs
+      run: |
+        echo "Selected browser >${{inputs.browser}}<"
+        if [[ "${{inputs.browser}}" == "Chromium" ]]
+        then
+          TEST_BROWSER='--project=chromium'
+        elif [[ "${{inputs.browser}}" == "Firefox" ]]
+        then
+          TEST_BROWSER='--project=firefox'
+        elif [[ "${{inputs.browser}}" == "Webkit" ]]
+        then
+          TEST_BROWSER='--project=webkit'
+        else
+          TEST_BROWSER=''
+        fi
+        echo "test-browser=$TEST_BROWSER" >> $GITHUB_OUTPUT
+    - name: Output processed inputs from the GITHUB_OUTPUT
+      run: |
+        echo "-------"
+        echo "***${{ steps.process_inputs.outputs.test-browser }}***"
+        echo "-------"
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
       with:
@@ -19,7 +65,7 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
-      run: npx playwright test
+      run: npx playwright test ${{ steps.process_inputs.outputs.test-browser }} ${{ inputs.options }}
     - uses: actions/upload-artifact@v3
       if: always()
       with:
