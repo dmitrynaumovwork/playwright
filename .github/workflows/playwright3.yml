@@ -1,9 +1,9 @@
 name: Playwright Tests 3
 on:
-  schedule:
-    - cron: '45 19 * * *'
-    - cron: '50 19 * * *'
-    - cron: '55 19 * * *'
+  # schedule:
+    # - cron: '45 19 * * *' # should match with conditions below  
+    # - cron: '50 19 * * *' # should match with conditions below 
+    # - cron: '55 19 * * *' # should match with conditions below 
   workflow_dispatch:
     inputs:
       environment:
@@ -73,11 +73,12 @@ jobs:
     - name: Output processed inputs from the GITHUB_OUTPUT
       run: |
         echo "-------"
-        echo "***BROWSER INPUT: ${{ steps.process_inputs.outputs.test-browser }}***"
-        echo "***BROWSER VAR TEST_BROWSER: $TEST_BROWSER***"
-        echo "***CRON SCHEDULE github.event.schedule: ${{ github.event.schedule }}***"
-        echo "***CRON SCHEDULE steps.process_inputs.outputs.test-environment: ${{ steps.process_inputs.outputs.test-environment }}***"
-        echo "***CRON VAR TEST_ENV: $TEST_ENV***"
+        echo "***BROWSER inputs.browser: ${{ inputs.browser }}***"
+        echo "***BROWSER steps.process_inputs.outputs.test-browser: ${{ steps.process_inputs.outputs.test-browser }}***"
+        echo "***BROWSER TEST_BROWSER: $TEST_BROWSER***"
+        echo "***CRON github.event.schedule: ${{ github.event.schedule }}***"
+        echo "***CRON steps.process_inputs.outputs.test-environment: ${{ steps.process_inputs.outputs.test-environment }}***"
+        echo "***CRON TEST_ENV: $TEST_ENV***"
         echo "-------"
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
