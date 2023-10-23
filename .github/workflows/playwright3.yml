@@ -69,7 +69,7 @@ jobs:
         else
           TEST_ENV=''
         fi
-        echo "test-browser=$TEST_ENV" >> $GITHUB_OUTPU
+        echo "test-browser=$TEST_ENV" >> $GITHUB_OUTPUT
     - name: Output processed inputs from the GITHUB_OUTPUT
       run: |
         echo "-------"
