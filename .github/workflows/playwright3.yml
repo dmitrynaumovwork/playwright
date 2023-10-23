@@ -1,0 +1,96 @@
+name: Playwright Tests
+on:
+  schedule:
+    - cron: "25 19 * * *"
+    - cron: "30 19 * * *"
+    - cron: "35 19 * * *"
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: 'Environment to run in'
+        required: true
+        default: 'staging'
+        options:
+        - 'develop'
+        - 'staging'
+        - 'production'
+      browser:
+        type: choice
+        description: 'Browser'
+        required: true
+        default: 'chromium'
+        options:
+          - 'Chromium'
+          - 'Firefox'
+          - 'Webkit'
+          - 'All browsers'
+      options:
+        type: string
+        description: 'Test run options (e.g.: --workers=1)'
+        required: false
+      skip-message:
+        type: boolean
+        description: 'Skip Slack message?'
+        required: true
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - name: Process inputs and add them to the GITHUB_OUTPUT
+      id: process_inputs
+      run: |
+        echo "Selected browser >${{inputs.browser}}<"
+        if [[ "${{inputs.browser}}" == "Chromium" ]]
+        then
+          TEST_BROWSER='--project=chromium'
+        elif [[ "${{inputs.browser}}" == "Firefox" ]]
+        then
+          TEST_BROWSER='--project=firefox'
+        elif [[ "${{inputs.browser}}" == "Webkit" ]]
+        then
+          TEST_BROWSER='--project=webkit'
+        else
+          TEST_BROWSER=''
+        fi
+        echo "test-browser=$TEST_BROWSER" >> $GITHUB_OUTPUT
+
+        echo "Cron value >${{github.event.schedule}}<"
+        if [[ "${{github.event.schedule}}" == '25 19 * * *' ]]
+        then 
+          TEST_ENV=production
+        elif [[ "${{github.event.schedule}}" == '30 19 * * *' ]]
+        then 
+          TEST_ENV=staging
+        elif [[ "${{github.event.schedule}}" == '35 19 * * *' ]]
+        then 
+          TEST_ENV=develop
+        else
+          TEST_ENV=''
+        fi
+        echo "test-browser=$TEST_ENV" >> $GITHUB_OUTPU
+    - name: Output processed inputs from the GITHUB_OUTPUT
+      run: |
+        echo "-------"
+        echo "***BROWSER INPUT: ${{ steps.process_inputs.outputs.test-browser }}***"
+        echo "***BROWSER VAR: $TEST_BROWSER***"
+        echo "***CRON SCHEDULE: ${{ github.event.schedule }}***"
+        echo "***CRON VAR: $TEST_ENV***"
+        echo "-------"
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Playwright tests
+      run: npx playwright test ${{ steps.process_inputs.outputs.test-browser }} ${{ inputs.options }}
+    - uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
