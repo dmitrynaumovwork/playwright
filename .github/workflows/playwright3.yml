@@ -1,9 +1,9 @@
 name: Playwright Tests 3
 on:
   schedule:
-    - cron: '25 19 * * *'
-    - cron: '30 19 * * *'
-    - cron: '35 19 * * *'
+    - cron: '45 19 * * *'
+    - cron: '50 19 * * *'
+    - cron: '55 19 * * *'
   workflow_dispatch:
     inputs:
       environment:
@@ -57,26 +57,27 @@ jobs:
         echo "test-browser=$TEST_BROWSER" >> $GITHUB_OUTPUT
 
         echo "Cron value >${{github.event.schedule}}<"
-        if [[ "${{github.event.schedule}}" == '25 19 * * *' ]]
+        if [[ "${{github.event.schedule}}" == '45 19 * * *' ]]
         then 
-          TEST_ENV=production
-        elif [[ "${{github.event.schedule}}" == '30 19 * * *' ]]
+          TEST_ENV='production'
+        elif [[ "${{github.event.schedule}}" == '50 19 * * *' ]]
         then 
-          TEST_ENV=staging
-        elif [[ "${{github.event.schedule}}" == '35 19 * * *' ]]
+          TEST_ENV='staging'
+        elif [[ "${{github.event.schedule}}" == '55 19 * * *' ]]
         then 
-          TEST_ENV=develop
+          TEST_ENV='develop'
         else
           TEST_ENV=''
         fi
-        echo "test-browser=$TEST_ENV" >> $GITHUB_OUTPUT
+        echo "test-environment=$TEST_ENV" >> $GITHUB_OUTPUT
     - name: Output processed inputs from the GITHUB_OUTPUT
       run: |
         echo "-------"
         echo "***BROWSER INPUT: ${{ steps.process_inputs.outputs.test-browser }}***"
-        echo "***BROWSER VAR: $TEST_BROWSER***"
-        echo "***CRON SCHEDULE: ${{ github.event.schedule }}***"
-        echo "***CRON VAR: $TEST_ENV***"
+        echo "***BROWSER VAR TEST_BROWSER: $TEST_BROWSER***"
+        echo "***CRON SCHEDULE github.event.schedule: ${{ github.event.schedule }}***"
+        echo "***CRON SCHEDULE steps.process_inputs.outputs.test-environment: ${{ steps.process_inputs.outputs.test-environment }}***"
+        echo "***CRON VAR TEST_ENV: $TEST_ENV***"
         echo "-------"
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
