@@ -29,6 +29,13 @@ on:
         type: boolean
         description: 'Skip Slack message?'
         required: true
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 jobs:
   test:
     timeout-minutes: 60
