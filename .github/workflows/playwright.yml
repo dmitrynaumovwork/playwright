@@ -29,17 +29,19 @@ on:
         type: boolean
         description: 'Skip Slack message?'
         required: true
-permissions:
-  contents: read
-  pages: write
-  id-token: write
 concurrency:
   group: "pages"
   cancel-in-progress: false
 jobs:
-  test:
+  run-playwright-test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    env:
+      CI: true
     steps:
     - name: Process inputs and add them to the GITHUB_OUTPUT
       id: process_inputs
