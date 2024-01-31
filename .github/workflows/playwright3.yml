@@ -74,6 +74,7 @@ jobs:
     - name: Output processed inputs from the GITHUB_OUTPUT
       run: |
         echo "-------"
+        echo "***DATE: ${{ date }}***"
         echo "***SKIP-MESSAGE inputs.skip-message: ${{ inputs.skip-message }}***"
         echo "***BROWSER inputs.browser: ${{ inputs.browser }}***"
         echo "***BROWSER steps.process_inputs.outputs.test-browser: ${{ steps.process_inputs.outputs.test-browser }}***"
