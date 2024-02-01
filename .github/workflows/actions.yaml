@@ -1,9 +1,9 @@
 name: Actions Setup
 on:
-  schedule:
+  # schedule:
     # - cron: '25 13 * * *' # should match with conditions below  
     # - cron: '40 13 * * *' # should match with conditions below 
-    - cron: '05 13 * * *' # should match with conditions below 
+    # - cron: '05 13 * * *' # should match with conditions below 
   workflow_dispatch:
     inputs:
       environment:
@@ -84,7 +84,7 @@ jobs:
         else
           echo "locally=false" >> "$GITHUB_ENV"
           echo "workdir=./e2e/playwright/" >> "$GITHUB_ENV"
-          echo "options=--grep "${{ inputs.test-tag }}" ${{ inputs.options }} ${{ inputs.browser }}" >> "$GITHUB_ENV"
+          echo "options=--grep """${{ inputs.test-tag }}""" ${{ inputs.options }} ${{ inputs.browser }}" >> "$GITHUB_ENV"
         fi
     - name: Output processed inputs from the GITHUB_OUTPUT
       run: |
