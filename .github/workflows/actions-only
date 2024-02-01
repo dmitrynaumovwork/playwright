@@ -1,0 +1,113 @@
+name: Actions Setup
+on:
+  # schedule:
+    # - cron: '25 13 * * *' # should match with conditions below  
+    # - cron: '40 13 * * *' # should match with conditions below 
+    # - cron: '55 13 * * *' # should match with conditions below 
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: 'Environment'
+        required: true
+        default: 'develop'
+        options:
+        - 'develop'
+        - 'staging'
+        - 'production'
+        - 'local'
+      workdir:
+        type: choice
+        description: 'Playwright directory (default) or root directory'
+        required: true
+        default: './e2e/playwright/'
+        options:
+        - './e2e/playwright/'
+        - './'
+      browser:
+        type: choice
+        description: 'Browser: Chromium(the most stable), Firefox, WebKit(Safari)'
+        required: true
+        default: '--project=chromium'
+        options:
+        - '--project=chromium'
+        - '--project=firefox'
+        - '--project=webkit'
+        - '--'
+      test-tag:
+        type: choice
+        description: 'Tag of scope to test. Empty menu item - all tests (no tags)'
+        required: true
+        options:
+        - '@debug'
+        - '@previous'
+        - '@smoke'
+        - '-'
+      options:
+        type: string
+        description: 'Test run options (e.g.: --workers=1)'
+        required: false
+      skip-message:
+        type: boolean
+        description: 'Skip Slack message?'
+        required: true
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - name: Process Cron
+      id: cron
+      run: |
+        echo "Cron value >${{github.event.schedule}}<"
+        if [[ "${{github.event.schedule}}" == '45 19 * * *' ]]
+        then 
+          echo "::set-output name=environment::production"
+        elif [[ "${{github.event.schedule}}" == '50 19 * * *' ]]
+        then 
+          echo "::set-output name=environment::staging"
+        elif [[ "${{github.event.schedule}}" == '55 19 * * *' ]]
+        then 
+          echo "::set-output name=environment::develop"
+        else
+          echo "::set-output name=environment::${{inputs.environment}}"
+        fi
+    - name: Process inputs
+      id: process
+      run: |
+        if [[ "${{steps.cron.outputs.environment}}" == "local" ]]
+        then
+          echo "::set-output name=locally::true"
+          echo "::set-output name=workdir::./"
+          echo "::set-output name=options::--config=e2e/playwright/playwright.config.js --project=chromium --grep @smoke"
+        else
+          echo "::set-output name=locally::false"
+          echo "::set-output name=workdir::./e2e/playwright/"
+          echo "::set-output name=options::--grep "${{ inputs.test-tag }}" ${{ inputs.options }} ${{ inputs.browser }}"
+        fi
+    - name: Output processed inputs from the GITHUB_OUTPUT
+      run: |
+        echo "-------"
+        echo "*** DATE: $(date) ***"
+        echo "*** Environment input: ${{ inputs.environment }} ***"
+        echo "*** Environment process: ${{ steps.cron.outputs.environment }} ***"
+        echo "*** Locally process: ${{ steps.process.outputs.locally }} ***"
+        echo "*** Workdir process: ${{ steps.process.outputs.workdir }} ***"
+        echo "*** Options process: ${{ steps.process.outputs.options }} ***"
+        echo "-------"
+    # - uses: actions/checkout@v3
+    # - uses: actions/setup-node@v3
+    #   with:
+    #    node-version: 18
+    # - name: Install dependencies
+    #   run: npm ci
+    # - name: Install Playwright Browsers
+    #   run: npx playwright install --with-deps
+    # - name: Run Playwright tests
+    #   run: npx playwright test ${{ steps.process_inputs.outputs.test-browser }} ${{ inputs.options }}
+    # - uses: actions/upload-artifact@v3
+    #   if: always()
+    #   with:
+    #     name: playwright-report
+    #     path: playwright-report/
+    #     retention-days: 1
