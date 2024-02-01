@@ -1,9 +1,9 @@
 name: Actions Setup
 on:
   schedule:
-    - cron: '00 14 * * *' # should match with conditions below  
+    # - cron: '00 14 * * *' # should match with conditions below  
     # - cron: '15 14 * * *' # should match with conditions below 
-    # - cron: '30 14 * * *' # should match with conditions below 
+    - cron: '40 14 * * *' # should match with conditions below 
   workflow_dispatch:
     inputs:
       environment:
@@ -67,7 +67,7 @@ jobs:
         elif [[ "${{github.event.schedule}}" == '15 14 * * *' ]]
         then 
           echo "environment=staging" >> "$GITHUB_ENV"
-        elif [[ "${{github.event.schedule}}" == '30 14 * * *' ]]
+        elif [[ "${{github.event.schedule}}" == '40 14 * * *' ]]
         then 
           echo "environment=develop" >> "$GITHUB_ENV"
         else
@@ -76,7 +76,7 @@ jobs:
     - name: Process inputs
       id: process
       run: |
-        if [[ ${{inputs.environment}} == "" || ${{inputs.environment}} == "-"  ]]
+        if [[ $environment == "" || $environment == "-"  ]]
         then
           GREP_TAG=""
         else
@@ -91,7 +91,6 @@ jobs:
         else
           echo "locally=false" >> "$GITHUB_ENV"
           echo "workdir=./e2e/playwright/" >> "$GITHUB_ENV"
-          GREP_TAG=
           echo "options=$GREP_TAG ${{ inputs.options }} ${{ inputs.browser }}" >> "$GITHUB_ENV"
         fi
     - name: Output processed inputs from the GITHUB_OUTPUT
