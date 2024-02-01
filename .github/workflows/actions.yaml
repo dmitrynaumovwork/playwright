@@ -1,9 +1,9 @@
 name: Actions Setup
 on:
   # schedule:
-    # - cron: '05 15 * * *' # should match with conditions below  
-    # - cron: '20 15 * * *' # should match with conditions below 
-    # - cron: '35 15 * * *' # should match with conditions below 
+    # - cron: '10 19 * * *' # should match with conditions below  
+    # - cron: '25 19 * * *' # should match with conditions below 
+    # - cron: '40 19 * * *' # should match with conditions below 
   workflow_dispatch:
     inputs:
       environment:
@@ -50,6 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       environment: ${{ steps.cron.outputs.environment }}
+      skip: ${{ steps.cron.outputs.skip }}
       locally: ${{ steps.process.outputs.locally }}
       workdir: ${{ steps.process.outputs.workdir }}
       options: ${{ steps.process.outputs.options }}
@@ -58,18 +59,20 @@ jobs:
       id: cron
       run: |
         echo "Cron value >${{github.event.schedule}}<"
-        if [[ "${{github.event.schedule}}" == "00 14 * * *" ]]
+        if [[ "${{github.event.schedule}}" == "10 19 * * *" ]]
         then 
           echo "environment=production" >> "$GITHUB_OUTPUT"
-        elif [[ "${{github.event.schedule}}" == "15 14 * * *" ]]
+        elif [[ "${{github.event.schedule}}" == "25 19 * * *" ]]
         then 
           echo "environment=staging" >> "$GITHUB_OUTPUT"
-        elif [[ "${{github.event.schedule}}" == "55 14 * * *" ]]
+        elif [[ "${{github.event.schedule}}" == "40 19 * * *" ]]
         then 
           echo "environment=develop" >> "$GITHUB_OUTPUT"
         else
           echo "environment=${{inputs.environment}}" >> "$GITHUB_OUTPUT"
         fi
+        
+        echo "skip=${{inputs.skip-message}}" >> "$GITHUB_OUTPUT"
     - name: Process inputs
       id: process
       run: |
@@ -100,11 +103,8 @@ jobs:
         echo "-------"
         echo "*** DATE: $(date) ***"
         echo "*** Environment input: ${{ inputs.environment }} ***"
-        echo "*** Environment process: $environment ***"
-        echo "*** Locally process: $locally ***"
-        echo "*** Workdir process: $workdir ***"
-        echo "*** Options process: $options ***"
         echo "*** Environment output: ${{ needs.process.outputs.environment }} ***"
+        echo "*** Skip Slack output: ${{ needs.process.outputs.skip }} ***"
         echo "*** Locally output: ${{ needs.process.outputs.locally }} ***"
         echo "*** Workdir output: ${{ needs.process.outputs.workdir }} ***"
         echo "*** Options output: ${{ needs.process.outputs.options }} ***"
