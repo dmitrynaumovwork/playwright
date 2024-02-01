@@ -18,14 +18,14 @@ on:
         - 'local'
       browser:
         type: choice
-        description: 'Browser: Chromium(the most stable), Firefox, WebKit(Safari)'
+        description: 'Browser: Chrome, Firefox, Safari, all'
         required: true
-        default: '--project=chromium'
+        default: 'Chrome'
         options:
-        - '--project=chromium'
-        - '--project=firefox'
-        - '--project=webkit'
-        - '--'
+        - 'Chrome'
+        - 'Firefox'
+        - 'Safari'
+        - 'all'
       test-tag:
         type: choice
         description: 'Tag of scope to test. Empty menu item - all tests (no tags)'
@@ -83,6 +83,19 @@ jobs:
           GREP_TAG="--grep ${{ inputs.test-tag }}"
         fi
 
+        if [[ "${{inputs.browser}}" == "Chrome" ]]
+        then 
+          $PROJECT="--project=chromium"
+        elif [[ "${{inputs.browser}}" == "Firefox" ]]
+        then 
+          $PROJECT="--project=firefox"
+        elif [[ "${{inputs.browser}}" == "Safari" ]]
+        then 
+          $PROJECT="--project=webkit"
+        else
+          $PROJECT=""
+        fi
+
         if [[ "${{steps.cron.outputs.environment}}" == "local" ]]
         then
           echo "locally=true" >> "$GITHUB_OUTPUT"
@@ -91,7 +104,7 @@ jobs:
         else
           echo "locally=false" >> "$GITHUB_OUTPUT"
           echo "workdir=./e2e/playwright/" >> "$GITHUB_OUTPUT"
-          echo "options=$GREP_TAG ${{ inputs.options }} ${{ inputs.browser }}" >> "$GITHUB_OUTPUT"
+          echo "options=$GREP_TAG ${{ inputs.options }} $PROJECT" >> "$GITHUB_OUTPUT"
         fi
   test:
     timeout-minutes: 60
