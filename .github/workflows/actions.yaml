@@ -45,9 +45,14 @@ on:
         description: 'Skip Slack message?'
         required: true
 jobs:
-  test:
-    timeout-minutes: 60
+  process:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
+    outputs:
+      environment: $environment
+      locally: $locally
+      workdir: $workdir
+      options: $options
     steps:
     - name: Process Cron
       id: cron
@@ -85,6 +90,11 @@ jobs:
           echo "workdir=./e2e/playwright/" >> "$GITHUB_ENV"
           echo "options=$GREP_TAG ${{ inputs.options }} ${{ inputs.browser }}" >> "$GITHUB_ENV"
         fi
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    needs: process
+    steps:
     - name: Output processed inputs from the GITHUB_OUTPUT
       run: |
         echo "-------"
@@ -94,6 +104,10 @@ jobs:
         echo "*** Locally process: $locally ***"
         echo "*** Workdir process: $workdir ***"
         echo "*** Options process: $options ***"
+        echo "*** Environment output: ${{ needs.process.outputs.environment }} ***"
+        echo "*** Locally output: ${{ needs.process.outputs.locally }} ***"
+        echo "*** Workdir output: ${{ needs.process.outputs.workdir }} ***"
+        echo "*** Options output: ${{ needs.process.outputs.options }} ***"
         echo "-------"
     # - uses: actions/checkout@v3
     # - uses: actions/setup-node@v3
