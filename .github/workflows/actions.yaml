@@ -1,9 +1,9 @@
 name: Actions Setup
 on:
   schedule:
-    # - cron: '00 14 * * *' # should match with conditions below  
-    # - cron: '15 14 * * *' # should match with conditions below 
-    - cron: '55 14 * * *' # should match with conditions below 
+    - cron: '05 15 * * *' # should match with conditions below  
+    # - cron: '20 15 * * *' # should match with conditions below 
+    # - cron: '35 15 * * *' # should match with conditions below 
   workflow_dispatch:
     inputs:
       environment:
@@ -53,13 +53,13 @@ jobs:
       id: cron
       run: |
         echo "Cron value >${{github.event.schedule}}<"
-        if [[ "${{github.event.schedule}}" == '00 14 * * *' ]]
+        if [[ "${{github.event.schedule}}" == "00 14 * * *" ]]
         then 
           echo "environment=production" >> "$GITHUB_ENV"
-        elif [[ "${{github.event.schedule}}" == '15 14 * * *' ]]
+        elif [[ "${{github.event.schedule}}" == "15 14 * * *" ]]
         then 
           echo "environment=staging" >> "$GITHUB_ENV"
-        elif [[ "${{github.event.schedule}}" == '55 14 * * *' ]]
+        elif [[ "${{github.event.schedule}}" == "55 14 * * *" ]]
         then 
           echo "environment=develop" >> "$GITHUB_ENV"
         else
@@ -68,7 +68,7 @@ jobs:
     - name: Process inputs
       id: process
       run: |
-        if [[ ${{inputs.test-tag}} == "" || ${{inputs.test-tag}} == "-"  ]]
+        if [[ "${{inputs.test-tag}}" == "" || "${{inputs.test-tag}}" == "-"  ]]
         then
           GREP_TAG=""
         else
