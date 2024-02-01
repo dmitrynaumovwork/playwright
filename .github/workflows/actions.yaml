@@ -1,7 +1,7 @@
 name: Actions Setup
 on:
-  schedule:
-    - cron: '25 20 * * *' # should match with conditions below 
+  # schedule:
+    # - cron: '25 20 * * *' # should match with conditions below 
     # - cron: '35 20 * * *' # should match with conditions below  
     # - cron: '45 20 * * *' # should match with conditions below 
     # - cron: '55 20 * * *' # should match with conditions below 
