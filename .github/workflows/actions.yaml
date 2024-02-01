@@ -1,10 +1,10 @@
 name: Actions Setup
 on:
   schedule:
-    - cron: '05 20 * * *' # should match with conditions below 
-    - cron: '20 20 * * *' # should match with conditions below  
-    # - cron: '35 20 * * *' # should match with conditions below 
-    # - cron: '50 20 * * *' # should match with conditions below 
+    - cron: '25 20 * * *' # should match with conditions below 
+    # - cron: '35 20 * * *' # should match with conditions below  
+    # - cron: '45 20 * * *' # should match with conditions below 
+    # - cron: '55 20 * * *' # should match with conditions below 
   workflow_dispatch:
     inputs:
       environment:
@@ -60,16 +60,16 @@ jobs:
       id: cron
       run: |
         echo "Cron value >${{github.event.schedule}}<"
-        if [[ "${{github.event.schedule}}" == "05 20 * * *" ]]
+        if [[ "${{github.event.schedule}}" == "25 20 * * *" ]]
         then 
-          echo "environment=production" >> "$GITHUB_OUTPUT"
-        elif [[ "${{github.event.schedule}}" == "20 20 * * *" ]]
-        then 
-          echo "environment=production" >> "$GITHUB_OUTPUT"
+          echo "environment=local" >> "$GITHUB_OUTPUT"
         elif [[ "${{github.event.schedule}}" == "35 20 * * *" ]]
         then 
+          echo "environment=production" >> "$GITHUB_OUTPUT"
+        elif [[ "${{github.event.schedule}}" == "45 20 * * *" ]]
+        then 
           echo "environment=staging" >> "$GITHUB_OUTPUT"
-        elif [[ "${{github.event.schedule}}" == "50 20 * * *" ]]
+        elif [[ "${{github.event.schedule}}" == "55 20 * * *" ]]
         then 
           echo "environment=develop" >> "$GITHUB_OUTPUT"
         else
