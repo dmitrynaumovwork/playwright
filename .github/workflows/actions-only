@@ -1,9 +1,9 @@
 name: Actions Setup
 on:
-  # schedule:
+ schedule:
     # - cron: '25 13 * * *' # should match with conditions below  
     # - cron: '40 13 * * *' # should match with conditions below 
-    # - cron: '55 13 * * *' # should match with conditions below 
+   - cron: '55 12 * * *' # should match with conditions below 
   workflow_dispatch:
     inputs:
       environment:
