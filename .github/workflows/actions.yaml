@@ -38,6 +38,7 @@ on:
         type: choice
         description: 'Tag of scope to test. Empty menu item - all tests (no tags)'
         required: true
+        default: '-'
         options:
         - '@debug'
         - '@previous'
@@ -62,38 +63,38 @@ jobs:
         echo "Cron value >${{github.event.schedule}}<"
         if [[ "${{github.event.schedule}}" == '45 19 * * *' ]]
         then 
-          echo "::set-output name=environment::production"
+          echo "environment=production" >> "$GITHUB_ENV"
         elif [[ "${{github.event.schedule}}" == '50 19 * * *' ]]
         then 
-          echo "::set-output name=environment::staging"
+          echo "environment=staging" >> "$GITHUB_ENV"
         elif [[ "${{github.event.schedule}}" == '55 19 * * *' ]]
         then 
-          echo "::set-output name=environment::develop"
+          echo "environment=develop" >> "$GITHUB_ENV"
         else
-          echo "::set-output name=environment::${{inputs.environment}}"
+          echo "environment=${{inputs.environment}}" >> "$GITHUB_ENV"
         fi
     - name: Process inputs
       id: process
       run: |
-        if [[ "${{steps.cron.outputs.environment}}" == "local" ]]
+        if [[ "$environment" == "local" ]]
         then
-          echo "::set-output name=locally::true"
-          echo "::set-output name=workdir::./"
-          echo "::set-output name=options::--config=e2e/playwright/playwright.config.js --project=chromium --grep @smoke"
+          echo "locally=true" >> "$GITHUB_ENV"
+          echo "workdir=./" >> "$GITHUB_ENV"
+          echo "options=--config=e2e/playwright/playwright.config.js --project=chromium --grep @smoke" >> "$GITHUB_ENV"
         else
-          echo "::set-output name=locally::false"
-          echo "::set-output name=workdir::./e2e/playwright/"
-          echo "::set-output name=options::--grep "${{ inputs.test-tag }}" ${{ inputs.options }} ${{ inputs.browser }}"
+          echo "locally=false" >> "$GITHUB_ENV"
+          echo "workdir=./e2e/playwright/" >> "$GITHUB_ENV"
+          echo "options=--grep "${{ inputs.test-tag }}" ${{ inputs.options }} ${{ inputs.browser }}" >> "$GITHUB_ENV"
         fi
     - name: Output processed inputs from the GITHUB_OUTPUT
       run: |
         echo "-------"
         echo "*** DATE: $(date) ***"
         echo "*** Environment input: ${{ inputs.environment }} ***"
-        echo "*** Environment process: ${{ steps.cron.outputs.environment }} ***"
-        echo "*** Locally process: ${{ steps.process.outputs.locally }} ***"
-        echo "*** Workdir process: ${{ steps.process.outputs.workdir }} ***"
-        echo "*** Options process: ${{ steps.process.outputs.options }} ***"
+        echo "*** Environment process: $environment ***"
+        echo "*** Locally process: $locally ***"
+        echo "*** Workdir process: $workdir ***"
+        echo "*** Options process: $options ***"
         echo "-------"
     # - uses: actions/checkout@v3
     # - uses: actions/setup-node@v3
