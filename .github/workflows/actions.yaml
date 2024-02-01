@@ -3,7 +3,7 @@ on:
   schedule:
     # - cron: '00 14 * * *' # should match with conditions below  
     # - cron: '15 14 * * *' # should match with conditions below 
-    - cron: '40 14 * * *' # should match with conditions below 
+    - cron: '45 14 * * *' # should match with conditions below 
   workflow_dispatch:
     inputs:
       environment:
@@ -67,7 +67,7 @@ jobs:
         elif [[ "${{github.event.schedule}}" == '15 14 * * *' ]]
         then 
           echo "environment=staging" >> "$GITHUB_ENV"
-        elif [[ "${{github.event.schedule}}" == '40 14 * * *' ]]
+        elif [[ "${{github.event.schedule}}" == '45 14 * * *' ]]
         then 
           echo "environment=develop" >> "$GITHUB_ENV"
         else
@@ -76,7 +76,7 @@ jobs:
     - name: Process inputs
       id: process
       run: |
-        if [[ $environment == "" || $environment == "-"  ]]
+        if [[ ${{inputs.test-tag}} == "" || ${{inputs.test-tag}} == "-"  ]]
         then
           GREP_TAG=""
         else
