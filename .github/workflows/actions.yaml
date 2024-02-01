@@ -1,9 +1,10 @@
 name: Actions Setup
 on:
   schedule:
-    # - cron: '10 19 * * *' # should match with conditions below  
-    # - cron: '25 19 * * *' # should match with conditions below 
-    - cron: '40 19 * * *' # should match with conditions below 
+    - cron: '05 19 * * *' # should match with conditions below 
+    # - cron: '20 19 * * *' # should match with conditions below  
+    # - cron: '35 19 * * *' # should match with conditions below 
+    # - cron: '50 19 * * *' # should match with conditions below 
   workflow_dispatch:
     inputs:
       environment:
@@ -59,13 +60,16 @@ jobs:
       id: cron
       run: |
         echo "Cron value >${{github.event.schedule}}<"
-        if [[ "${{github.event.schedule}}" == "10 19 * * *" ]]
+        if [[ "${{github.event.schedule}}" == "05 19 * * *" ]]
         then 
           echo "environment=production" >> "$GITHUB_OUTPUT"
-        elif [[ "${{github.event.schedule}}" == "25 19 * * *" ]]
+        elif [[ "${{github.event.schedule}}" == "20 19 * * *" ]]
+        then 
+          echo "environment=production" >> "$GITHUB_OUTPUT"
+        elif [[ "${{github.event.schedule}}" == "35 19 * * *" ]]
         then 
           echo "environment=staging" >> "$GITHUB_OUTPUT"
-        elif [[ "${{github.event.schedule}}" == "40 19 * * *" ]]
+        elif [[ "${{github.event.schedule}}" == "50 19 * * *" ]]
         then 
           echo "environment=develop" >> "$GITHUB_OUTPUT"
         else
@@ -85,15 +89,15 @@ jobs:
 
         if [[ "${{inputs.browser}}" == "Chrome" ]]
         then 
-          $PROJECT="--project=chromium"
+          PROJECT="--project=chromium"
         elif [[ "${{inputs.browser}}" == "Firefox" ]]
         then 
-          $PROJECT="--project=firefox"
+          PROJECT="--project=firefox"
         elif [[ "${{inputs.browser}}" == "Safari" ]]
         then 
-          $PROJECT="--project=webkit"
+          PROJECT="--project=webkit"
         else
-          $PROJECT=""
+          PROJECT=""
         fi
 
         if [[ "${{steps.cron.outputs.environment}}" == "local" ]]
