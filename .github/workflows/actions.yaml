@@ -1,9 +1,9 @@
 name: Actions Setup
 on:
   schedule:
-    # - cron: '15 13 * * *' # should match with conditions below  
-    - cron: '30 13 * * *' # should match with conditions below 
-    # - cron: '45 13 * * *' # should match with conditions below 
+    - cron: '00 14 * * *' # should match with conditions below  
+    # - cron: '15 14 * * *' # should match with conditions below 
+    # - cron: '30 14 * * *' # should match with conditions below 
   workflow_dispatch:
     inputs:
       environment:
@@ -61,13 +61,13 @@ jobs:
       id: cron
       run: |
         echo "Cron value >${{github.event.schedule}}<"
-        if [[ "${{github.event.schedule}}" == '45 19 * * *' ]]
+        if [[ "${{github.event.schedule}}" == '00 14 * * *' ]]
         then 
           echo "environment=production" >> "$GITHUB_ENV"
-        elif [[ "${{github.event.schedule}}" == '50 19 * * *' ]]
+        elif [[ "${{github.event.schedule}}" == '15 14 * * *' ]]
         then 
           echo "environment=staging" >> "$GITHUB_ENV"
-        elif [[ "${{github.event.schedule}}" == '55 19 * * *' ]]
+        elif [[ "${{github.event.schedule}}" == '30 14 * * *' ]]
         then 
           echo "environment=develop" >> "$GITHUB_ENV"
         else
@@ -76,6 +76,13 @@ jobs:
     - name: Process inputs
       id: process
       run: |
+        if [[ ${{inputs.environment}} == "" || ${{inputs.environment}} == "-"  ]]
+        then
+          GREP_TAG=""
+        else
+          GREP_TAG="--grep ${{ inputs.test-tag }}"
+        fi
+
         if [[ "$environment" == "local" ]]
         then
           echo "locally=true" >> "$GITHUB_ENV"
@@ -84,7 +91,8 @@ jobs:
         else
           echo "locally=false" >> "$GITHUB_ENV"
           echo "workdir=./e2e/playwright/" >> "$GITHUB_ENV"
-          echo "options=--grep \"${{ inputs.test-tag }}\" ${{ inputs.options }} ${{ inputs.browser }}" >> "$GITHUB_ENV"
+          GREP_TAG=
+          echo "options=$GREP_TAG ${{ inputs.options }} ${{ inputs.browser }}" >> "$GITHUB_ENV"
         fi
     - name: Output processed inputs from the GITHUB_OUTPUT
       run: |
