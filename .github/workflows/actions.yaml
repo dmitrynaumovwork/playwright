@@ -49,10 +49,10 @@ jobs:
     timeout-minutes: 10
     runs-on: ubuntu-latest
     outputs:
-      environment: $environment
-      locally: $locally
-      workdir: $workdir
-      options: $options
+      environment: ${{ steps.cron.outputs.environment }}
+      locally: ${{ steps.process.outputs.locally }}
+      workdir: ${{ steps.process.outputs.workdir }}
+      options: ${{ steps.process.outputs.options }}
     steps:
     - name: Process Cron
       id: cron
@@ -60,15 +60,15 @@ jobs:
         echo "Cron value >${{github.event.schedule}}<"
         if [[ "${{github.event.schedule}}" == "00 14 * * *" ]]
         then 
-          echo "environment=production" >> "$GITHUB_ENV"
+          echo "environment=production" >> "$GITHUB_OUTPUT"
         elif [[ "${{github.event.schedule}}" == "15 14 * * *" ]]
         then 
-          echo "environment=staging" >> "$GITHUB_ENV"
+          echo "environment=staging" >> "$GITHUB_OUTPUT"
         elif [[ "${{github.event.schedule}}" == "55 14 * * *" ]]
         then 
-          echo "environment=develop" >> "$GITHUB_ENV"
+          echo "environment=develop" >> "$GITHUB_OUTPUT"
         else
-          echo "environment=${{inputs.environment}}" >> "$GITHUB_ENV"
+          echo "environment=${{inputs.environment}}" >> "$GITHUB_OUTPUT"
         fi
     - name: Process inputs
       id: process
@@ -80,15 +80,15 @@ jobs:
           GREP_TAG="--grep ${{ inputs.test-tag }}"
         fi
 
-        if [[ "$environment" == "local" ]]
+        if [[ "${{steps.cron.outputs.environment}}" == "local" ]]
         then
-          echo "locally=true" >> "$GITHUB_ENV"
-          echo "workdir=./" >> "$GITHUB_ENV"
-          echo "options=--config=e2e/playwright/playwright.config.js --project=chromium --grep @smoke" >> "$GITHUB_ENV"
+          echo "locally=true" >> "$GITHUB_OUTPUT"
+          echo "workdir=./" >> "$GITHUB_OUTPUT"
+          echo "options=--config=e2e/playwright/playwright.config.js --project=chromium --grep @smoke" >> "$GITHUB_OUTPUT"
         else
-          echo "locally=false" >> "$GITHUB_ENV"
-          echo "workdir=./e2e/playwright/" >> "$GITHUB_ENV"
-          echo "options=$GREP_TAG ${{ inputs.options }} ${{ inputs.browser }}" >> "$GITHUB_ENV"
+          echo "locally=false" >> "$GITHUB_OUTPUT"
+          echo "workdir=./e2e/playwright/" >> "$GITHUB_OUTPUT"
+          echo "options=$GREP_TAG ${{ inputs.options }} ${{ inputs.browser }}" >> "$GITHUB_OUTPUT"
         fi
   test:
     timeout-minutes: 60
