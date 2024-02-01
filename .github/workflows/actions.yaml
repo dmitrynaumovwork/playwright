@@ -3,7 +3,7 @@ on:
   schedule:
     # - cron: '00 14 * * *' # should match with conditions below  
     # - cron: '15 14 * * *' # should match with conditions below 
-    - cron: '45 14 * * *' # should match with conditions below 
+    - cron: '55 14 * * *' # should match with conditions below 
   workflow_dispatch:
     inputs:
       environment:
@@ -16,14 +16,6 @@ on:
         - 'staging'
         - 'production'
         - 'local'
-      workdir:
-        type: choice
-        description: 'Playwright directory (default) or root directory'
-        required: true
-        default: './e2e/playwright/'
-        options:
-        - './e2e/playwright/'
-        - './'
       browser:
         type: choice
         description: 'Browser: Chromium(the most stable), Firefox, WebKit(Safari)'
@@ -67,7 +59,7 @@ jobs:
         elif [[ "${{github.event.schedule}}" == '15 14 * * *' ]]
         then 
           echo "environment=staging" >> "$GITHUB_ENV"
-        elif [[ "${{github.event.schedule}}" == '45 14 * * *' ]]
+        elif [[ "${{github.event.schedule}}" == '55 14 * * *' ]]
         then 
           echo "environment=develop" >> "$GITHUB_ENV"
         else
